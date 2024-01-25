@@ -20,34 +20,40 @@ def get_columns():
             'fieldname': 'department',
             'label': _('Department'),
             'fieldtype': 'Link',
-            'options': 'Department'
+            'options': 'Department',
+			'width': 200
         },
         {
             'fieldname': 'candidate_name',
             'label': _('Candidate Name'),
             'fieldtype': 'Data',
+			'width': 200
         },
 		{
             'fieldname': 'mail_id',
             'label': _('Candidate Mail Id'),
             'fieldtype': 'Data',
+			'width': 200
         },
 		{
             'fieldname': 'course',
             'label': _('Course'),
             'fieldtype': 'Link',
-            'options': 'LMS Course'
+            'options': 'LMS Course',
+			'width': 200
         },
 		{
             'fieldname': 'instructor',
             'label': _('Instructor'),
             'fieldtype': 'Data',
+			'width': 200
         },
 		{
             'fieldname': 'quiz',
             'label': _('Quiz'),
             'fieldtype': 'Link',
-            'options': 'LMS Quiz'
+            'options': 'LMS Quiz',
+			'width': 200
         },
 		{
             'fieldname': 'total_questions',
