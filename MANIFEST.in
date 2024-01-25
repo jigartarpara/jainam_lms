@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include jainam_lms *.css
+recursive-include jainam_lms *.csv
+recursive-include jainam_lms *.html
+recursive-include jainam_lms *.ico
+recursive-include jainam_lms *.js
+recursive-include jainam_lms *.json
+recursive-include jainam_lms *.md
+recursive-include jainam_lms *.png
+recursive-include jainam_lms *.py
+recursive-include jainam_lms *.svg
+recursive-include jainam_lms *.txt
+recursive-exclude jainam_lms *.pyc
