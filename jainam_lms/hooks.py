@@ -118,13 +118,11 @@ app_license = "MIT"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-#	"*": {
-#		"on_update": "method",
-#		"on_cancel": "method",
-#		"on_trash": "method"
-#	}
-# }
+doc_events = {
+	"LMS Quiz Submission": {
+		"after_insert": "jainam_lms.event.lms_quiz_submission.after_insert",
+	}
+}
 
 # Scheduled Tasks
 # ---------------
@@ -215,3 +213,6 @@ app_license = "MIT"
 # auth_hooks = [
 #	"jainam_lms.auth.validate"
 # ]
+after_migrate = [
+    "jainam_lms.custom_field.setup_custom_fields",
+]
