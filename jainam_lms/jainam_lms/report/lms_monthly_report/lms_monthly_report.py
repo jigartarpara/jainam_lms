@@ -5,8 +5,9 @@ import frappe
 from frappe import _
 
 def execute(filters=None):
+    filters = frappe._dict(filters or {})
     columns = get_columns()
-    data = get_data()
+    data = get_data(filters)
     return columns, data
 
 def get_columns():
@@ -14,6 +15,11 @@ def get_columns():
         {
             'fieldname': 'submission',
             'label': _('Submission Status'),
+            'fieldtype': 'Data',
+        },
+        {
+            'fieldname': 'result',
+            'label': _('Result'),
             'fieldtype': 'Data',
         },
         {
@@ -84,30 +90,41 @@ def get_columns():
             'fieldname': 'no_of_attempt',
             'label': _('No of Attempt'),
             'fieldtype': 'Data',
-        },
-        {
-            'fieldname': 'result',
-            'label': _('Result'),
-            'fieldtype': 'Data',
-        },
+        }
     ]
+def get_quiz_conditions(conditions, filters):
+    if filters.quiz:
+        conditions['name'] = filters.quiz
+    return conditions
 
-def get_data():
+def get_enrollment_conditions(conditions, filters):
+    if filters.course:
+        conditions['course'] = filters.course
+    if filters.member:
+        conditions['member'] =  filters.member
+    return conditions
+
+def get_quiz_submission_conditions(conditions, filters):
+    return conditions
+
+def get_data(filters):
     data = []
     
     average_socre_array = get_average_score()
 
     lms_enrollment = frappe.get_all(
         "LMS Enrollment", 
+        get_enrollment_conditions({}, filters),
         ["name", "course", "member", "member_type"]
     )
     
     for enrollment in lms_enrollment:
         lms_quiz = frappe.get_all(
             "LMS Quiz",
+            get_quiz_conditions(
             {
-                "course": enrollment.course
-            } ,
+                "course": enrollment.course,
+            },filters) ,
             ["name"]
         )
         for quiz in lms_quiz:   
@@ -115,18 +132,27 @@ def get_data():
             quiz = frappe.get_cached_doc("LMS Quiz", quiz.name)
             total_questions = len(quiz.questions)
             instructor = ""
+
+            valid_course = True
+            if filters.instructor:
+                valid_course = False
             if quiz.course:
                 course = frappe.get_cached_doc("LMS Course", quiz.course)
                 for instructor_row in course.instructors:
                     instructor += instructor_row.instructor
+                    if instructor_row.instructor == filters.instructor:
+                        valid_course = True
+            if not valid_course:
+                continue
+
             
             quiz_submissions = frappe.get_all(
                 "LMS Quiz Submission",
-                {
+                get_quiz_submission_conditions({
                     "course": enrollment.course,
                     "member": enrollment.member,
                     "quiz": quiz.name
-                }
+                }, filters)
                 , 
                 [
                     "name", "creation", "quiz", "course",  
@@ -156,7 +182,11 @@ def get_data():
                     "department": department,
                     "submission": "Submitted"
                 }
-                data.append(report_data)
+                if filters.submission_status == "Submitted" or not filters.submission_status:
+                    if (filters.result == "Pass" and row.percentage >= row.passing_percentage) or not filters.result:
+                        data.append(report_data)
+                    if (filters.result == "Fail" and not row.percentage >= row.passing_percentage) or not filters.result:
+                        data.append(report_data)
             else:
                 report_data = {
                     "quiz": quiz.name,
@@ -174,7 +204,8 @@ def get_data():
                     "department": department,
                     "submission": "Not Submitted"
                 }
-                data.append(report_data)
+                if filters.submission_status == "Not Submitted" or not filters.submission_status:
+                    data.append(report_data)
     print(data)
     return data
 
