@@ -127,8 +127,7 @@ def get_data(filters):
             },filters) ,
             ["name"]
         )
-        for quiz in lms_quiz:   
-            
+        for quiz in lms_quiz:
             quiz = frappe.get_cached_doc("LMS Quiz", quiz.name)
             total_questions = len(quiz.questions)
             instructor = ""
@@ -182,12 +181,14 @@ def get_data(filters):
                     "department": department,
                     "submission": "Submitted"
                 }
-                if filters.submission_status == "Submitted" or not filters.submission_status:
-                    if (filters.result == "Pass" and row.percentage >= row.passing_percentage) or not filters.result:
-                        data.append(report_data)
-                    if (filters.result == "Fail" and not row.percentage >= row.passing_percentage) or not filters.result:
-                        data.append(report_data)
-            else:
+                if not (filters.submission_status == "Submitted" or not filters.submission_status):
+                    continue
+                if not ((filters.result == "Pass" and row.percentage >= row.passing_percentage) or not filters.result):
+                    continue
+                if not ((filters.result == "Fail" and not row.percentage >= row.passing_percentage) or not filters.result):
+                    continue
+                data.append(report_data)
+            if not quiz_submissions:
                 report_data = {
                     "quiz": quiz.name,
                     "date_taken": "",
@@ -204,9 +205,11 @@ def get_data(filters):
                     "department": department,
                     "submission": "Not Submitted"
                 }
-                if filters.submission_status == "Not Submitted" or not filters.submission_status:
+                need_skip_record = False
+                if (filters.submission_status == "Not Submitted" or not filters.submission_status):
+                    need_skip_record = True
+                if not need_skip_record:
                     data.append(report_data)
-    print(data)
     return data
 
 def get_average_score():
