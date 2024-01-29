@@ -206,7 +206,7 @@ def get_data(filters):
                     "submission": "Not Submitted"
                 }
                 need_skip_record = False
-                if (filters.submission_status == "Not Submitted" or not filters.submission_status):
+                if not (filters.submission_status == "Not Submitted" or not filters.submission_status):
                     need_skip_record = True
                 if not need_skip_record:
                     data.append(report_data)
