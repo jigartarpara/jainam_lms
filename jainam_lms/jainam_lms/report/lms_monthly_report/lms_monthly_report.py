@@ -13,7 +13,7 @@ def execute(filters=None):
 def get_columns():
     return [
         {
-            'fieldname': 'submission',
+            'fieldname': 'submission_id',
             'label': _('LMS Submission'),
             'fieldtype': 'Link',
             'options': 'LMS Quiz Submission'
