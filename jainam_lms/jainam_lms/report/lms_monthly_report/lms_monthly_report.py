@@ -30,13 +30,8 @@ def get_columns():
             'width': 200
         },
         {
-            'fieldname': 'date_taken',
-            'label': _('Quiz Submission Date'),
-            'fieldtype': 'Date',
-        },
-        {
             'fieldname': 'department',
-            'label': _('Division'),
+            'label': _('Department'),
             'fieldtype': 'Link',
             'options': 'Department',
             'width': 200
@@ -63,15 +58,21 @@ def get_columns():
         },
         {
             'fieldname': 'submission',
-            'label': _('Submission Status'),
+            'label': _('Quiz Submission Status'),
             'fieldtype': 'Data',
         },
         {
             'fieldname': 'submission_id',
-            'label': _('Submission ID'),
+            'label': _('Quiz Submission ID'),
             'fieldtype': 'Link',
             'options': 'LMS Quiz Submission'
         },
+        {
+            'fieldname': 'date_taken',
+            'label': _('Quiz Submission Date'),
+            'fieldtype': 'Date',
+        },
+        
         {
             'fieldname': 'quiz',
             'label': _('Quiz'),
@@ -100,13 +101,13 @@ def get_columns():
             'fieldtype': 'Data',
         },
         {
-            'fieldname': 'result',
-            'label': _('Result'),
+            'fieldname': 'no_of_attempt',
+            'label': _('No of Attempt'),
             'fieldtype': 'Data',
         },
         {
-            'fieldname': 'no_of_attempt',
-            'label': _('No of Attempt'),
+            'fieldname': 'result',
+            'label': _('Result'),
             'fieldtype': 'Data',
         }
     ]
