@@ -14,13 +14,20 @@ def get_columns():
     return [
         {
             'fieldname': 'submission',
-            'label': _('Submission Status'),
-            'fieldtype': 'Data',
+            'label': _('LMS Submission'),
+            'fieldtype': 'Link',
+            'options': 'LMS Quiz Submission'
         },
         {
-            'fieldname': 'result',
-            'label': _('Result'),
-            'fieldtype': 'Data',
+            'fieldname': 'enrollment_id',
+            'label': _('Enrollment'),
+            'fieldtype': 'Link',
+            'options': 'LMS Enrollment'
+        },
+        {
+            'fieldname': 'enrollment_date',
+            'label': _('Enrollment Date'),
+            'fieldtype': 'Date',
         },
         {
             'fieldname': 'date_taken',
@@ -60,6 +67,11 @@ def get_columns():
             'width': 200
         },
         {
+            'fieldname': 'submission',
+            'label': _('Submission Status'),
+            'fieldtype': 'Data',
+        },
+        {
             'fieldname': 'quiz',
             'label': _('Quiz'),
             'fieldtype': 'Link',
@@ -84,6 +96,11 @@ def get_columns():
         {
             'fieldname': 'percentage',
             'label': _('Percentage'),
+            'fieldtype': 'Data',
+        },
+        {
+            'fieldname': 'result',
+            'label': _('Result'),
             'fieldtype': 'Data',
         },
         {
@@ -115,7 +132,7 @@ def get_data(filters):
     lms_enrollment = frappe.get_all(
         "LMS Enrollment", 
         get_enrollment_conditions({}, filters),
-        ["name", "course", "member", "member_type"]
+        ["name", "course", "member", "member_type", "creation"]
     )
     
     for enrollment in lms_enrollment:
@@ -166,6 +183,9 @@ def get_data(filters):
             
             for row in quiz_submissions:
                 report_data = {
+                    "submission": row.name,
+                    "enrollment_id": enrollment.name ,
+                    "enrollment_date": enrollment.creation,
                     "quiz": quiz.name,
                     "date_taken": row.creation,
                     "candidate_name": candidate_name,
@@ -190,6 +210,9 @@ def get_data(filters):
                 data.append(report_data)
             if not quiz_submissions:
                 report_data = {
+                    "submission": "",
+                    "enrollment_id": enrollment.name ,
+                    "enrollment_date": enrollment.creation,
                     "quiz": quiz.name,
                     "date_taken": "",
                     "candidate_name": candidate_name,
