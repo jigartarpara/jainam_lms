@@ -183,7 +183,7 @@ def get_data(filters):
             
             for row in quiz_submissions:
                 report_data = {
-                    "submission": row.name,
+                    "submission_id": row.name,
                     "enrollment_id": enrollment.name ,
                     "enrollment_date": enrollment.creation,
                     "quiz": quiz.name,
@@ -210,7 +210,7 @@ def get_data(filters):
                 data.append(report_data)
             if not quiz_submissions:
                 report_data = {
-                    "submission": "",
+                    "submission_id": "",
                     "enrollment_id": enrollment.name ,
                     "enrollment_date": enrollment.creation,
                     "quiz": quiz.name,
