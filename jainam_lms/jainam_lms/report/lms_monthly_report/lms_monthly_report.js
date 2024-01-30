@@ -22,23 +22,23 @@ frappe.query_reports["LMS Monthly Report"] = {
 			fieldtype: "Link",
 			options: "User",
 		},
-		{
-			fieldname: "submission_status",
-			label: __("Submission Status"),
-			fieldtype: "Select",
-			options: "\nSubmitted\nNot Submitted",
-		},
+		// {
+		// 	fieldname: "submission_status",
+		// 	label: __("Submission Status"),
+		// 	fieldtype: "Select",
+		// 	options: "\nSubmitted\nNot Submitted",
+		// },
 		{
 			fieldname: "instructor",
 			label: __("Instructor"),
 			fieldtype: "Link",
 			options: "User",
 		},
-		{
-			fieldname: "result",
-			label: __("Result"),
-			fieldtype: "Select",
-			options: "\nPass\nFail",
-		},
+		// {
+		// 	fieldname: "result",
+		// 	label: __("Result"),
+		// 	fieldtype: "Select",
+		// 	options: "\nPass\nFail",
+		// },
 	]
 };
