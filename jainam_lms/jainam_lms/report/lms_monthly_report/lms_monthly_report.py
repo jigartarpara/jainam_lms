@@ -13,12 +13,6 @@ def execute(filters=None):
 def get_columns():
     return [
         {
-            'fieldname': 'submission_id',
-            'label': _('LMS Submission'),
-            'fieldtype': 'Link',
-            'options': 'LMS Quiz Submission'
-        },
-        {
             'fieldname': 'enrollment_id',
             'label': _('Enrollment'),
             'fieldtype': 'Link',
@@ -30,23 +24,24 @@ def get_columns():
             'fieldtype': 'Date',
         },
         {
-            'fieldname': 'date_taken',
-            'label': _('Date Taken'),
-            'fieldtype': 'Date',
-        },
-        {
-            'fieldname': 'department',
-            'label': _('Department'),
-            'fieldtype': 'Link',
-            'options': 'Department',
-            'width': 200
-        },
-        {
             'fieldname': 'candidate_name',
             'label': _('Candidate Name'),
             'fieldtype': 'Data',
             'width': 200
         },
+        {
+            'fieldname': 'date_taken',
+            'label': _('Quiz Submission Date'),
+            'fieldtype': 'Date',
+        },
+        {
+            'fieldname': 'department',
+            'label': _('Division'),
+            'fieldtype': 'Link',
+            'options': 'Department',
+            'width': 200
+        },
+        
         {
             'fieldname': 'mail_id',
             'label': _('Candidate Mail Id'),
@@ -70,6 +65,12 @@ def get_columns():
             'fieldname': 'submission',
             'label': _('Submission Status'),
             'fieldtype': 'Data',
+        },
+        {
+            'fieldname': 'submission_id',
+            'label': _('Submission ID'),
+            'fieldtype': 'Link',
+            'options': 'LMS Quiz Submission'
         },
         {
             'fieldname': 'quiz',
