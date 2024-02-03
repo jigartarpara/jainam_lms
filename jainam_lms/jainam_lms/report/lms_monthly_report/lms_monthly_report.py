@@ -167,7 +167,7 @@ def get_data(filters):
             quiz_submissions = frappe.get_all(
                 "LMS Quiz Submission",
                 get_quiz_submission_conditions({
-                    "course": enrollment.course,
+                    # "course": enrollment.course,
                     "member": enrollment.member,
                     "quiz": quiz.name
                 }, filters)
