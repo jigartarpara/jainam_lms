@@ -124,6 +124,11 @@ doc_events = {
 	}
 }
 
+scheduler_events = {
+    "all": [
+        "jainam_lms.send_batch_mail.all",
+    ]
+}
 # Scheduled Tasks
 # ---------------
 

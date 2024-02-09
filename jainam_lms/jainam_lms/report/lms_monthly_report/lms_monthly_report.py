@@ -3,7 +3,7 @@
 
 import frappe
 from frappe import _
-
+from frappe.utils import  flt
 def execute(filters=None):
     filters = frappe._dict(filters or {})
     columns = get_columns()
@@ -13,14 +13,14 @@ def execute(filters=None):
 def get_columns():
     return [
         {
-            'fieldname': 'enrollment_id',
-            'label': _('Enrollment'),
+            'fieldname': 'batch_id',
+            'label': _('Batch'),
             'fieldtype': 'Link',
-            'options': 'LMS Enrollment'
+            'options': 'LMS Batch'
         },
         {
-            'fieldname': 'enrollment_date',
-            'label': _('Enrollment Date'),
+            'fieldname': 'batch_date',
+            'label': _('Batch Date'),
             'fieldtype': 'Date',
         },
         {
@@ -58,7 +58,7 @@ def get_columns():
         },
         {
             'fieldname': 'submission',
-            'label': _('Quiz Submission Status'),
+            'label': _('Quiz Attempt Status'),
             'fieldtype': 'Data',
         },
         {
@@ -116,11 +116,7 @@ def get_quiz_conditions(conditions, filters):
         conditions['name'] = filters.quiz
     return conditions
 
-def get_enrollment_conditions(conditions, filters):
-    if filters.course:
-        conditions['course'] = filters.course
-    if filters.member:
-        conditions['member'] =  filters.member
+def get_lms_batch_conditions(conditions, filters):
     return conditions
 
 def get_quiz_submission_conditions(conditions, filters):
@@ -131,110 +127,104 @@ def get_data(filters):
     
     average_socre_array = get_average_score()
 
-    lms_enrollment = frappe.get_all(
-        "LMS Enrollment", 
-        get_enrollment_conditions({}, filters),
-        ["name", "course", "member", "member_type", "creation"]
+    lms_batchs = frappe.get_all(
+        "LMS Batch", 
+        get_lms_batch_conditions({}, filters),
+        ["name", "start_date", "end_date", "start_time", "end_time"]
     )
     
-    for enrollment in lms_enrollment:
-        lms_quiz = frappe.get_all(
-            "LMS Quiz",
-            get_quiz_conditions(
-            {
-                "course": enrollment.course,
-            },filters) ,
-            ["name"]
-        )
-        for quiz in lms_quiz:
-            quiz = frappe.get_cached_doc("LMS Quiz", quiz.name)
-            total_questions = len(quiz.questions)
-            instructor = ""
+    for lms_batch in lms_batchs:
+        batch = frappe.get_doc("LMS Batch", lms_batch['name'])
+        for assement in batch.assessment:
+            if assement.assessment_type == "LMS Quiz":
+                if filters.quiz and filters.quiz != assement.assessment_name:
+                    continue
+                
+                quiz = frappe.get_cached_doc("LMS Quiz", assement.assessment_name)
+                
+                total_questions = len(quiz.questions)
 
-            valid_course = True
-            if filters.instructor:
-                valid_course = False
-            if quiz.course:
-                course = frappe.get_cached_doc("LMS Course", quiz.course)
-                for instructor_row in course.instructors:
-                    instructor += instructor_row.instructor
-                    if instructor_row.instructor == filters.instructor:
-                        valid_course = True
-            if not valid_course:
-                continue
+                for student in batch.students:
+                    if filters.member and filters.member != student.student:
+                        continue
 
-            
-            quiz_submissions = frappe.get_all(
-                "LMS Quiz Submission",
-                get_quiz_submission_conditions({
-                    # "course": enrollment.course,
-                    "member": enrollment.member,
-                    "quiz": quiz.name
-                }, filters)
-                , 
-                [
-                    "name", "creation", "quiz", "course",  
-                    "member", "member_name", "score", 
-                    "attempt", "percentage", "passing_percentage"
-                ]
-            )
-            
-            mail_id = frappe.db.get_value("User", enrollment.member, "email")
-            department = frappe.db.get_value("User", enrollment.member, "department")
-            candidate_name = frappe.db.get_value("User", enrollment.member, "full_name")
-            
-            for row in quiz_submissions:
-                report_data = {
-                    "submission_id": row.name,
-                    "enrollment_id": enrollment.name ,
-                    "enrollment_date": enrollment.creation,
-                    "quiz": quiz.name,
-                    "date_taken": row.creation,
-                    "candidate_name": candidate_name,
-                    "mail_id": mail_id,
-                    "total_questions": total_questions,
-                    "average_score": average_socre_array.get(quiz.name),
-                    "total_score": row.score,
-                    "percentage": row.percentage,
-                    "no_of_attempt": row.attempt,
-                    "result": "Pass" if row.percentage >= row.passing_percentage else "Fail",
-                    "course": quiz.course,
-                    "instructor": instructor,
-                    "department": department,
-                    "submission": "Submitted"
-                }
-                if not (filters.submission_status == "Submitted" or not filters.submission_status):
-                    continue
-                if not ((filters.result == "Pass" and row.percentage >= row.passing_percentage) or not filters.result):
-                    continue
-                if not ((filters.result == "Fail" and not row.percentage >= row.passing_percentage) or not filters.result):
-                    continue
-                data.append(report_data)
-            if not quiz_submissions:
-                report_data = {
-                    "submission_id": "",
-                    "enrollment_id": enrollment.name ,
-                    "enrollment_date": enrollment.creation,
-                    "quiz": quiz.name,
-                    "date_taken": "",
-                    "candidate_name": candidate_name,
-                    "mail_id": mail_id,
-                    "total_questions": total_questions,
-                    "average_score": average_socre_array.get(quiz.name),
-                    "total_score": "",
-                    "percentage": "",
-                    "no_of_attempt": "",
-                    "result": "",
-                    "course": quiz.course,
-                    "instructor": instructor,
-                    "department": department,
-                    "submission": "Not Submitted"
-                }
-                need_skip_record = False
-                if not (filters.submission_status == "Not Submitted" or not filters.submission_status):
-                    need_skip_record = True
-                if not need_skip_record:
-                    data.append(report_data)
+                    quiz_submissions = frappe.get_all(
+                        "LMS Quiz Submission",
+                        get_quiz_submission_conditions({
+                            "member": student.student,
+                            "quiz": quiz.name
+                        }, filters)
+                        , 
+                        [
+                            "name", "creation", "quiz", "course",  
+                            "member", "member_name", "score", 
+                            "attempt", "percentage", "passing_percentage"
+                        ]
+                    )
+                    
+                    mail_id = frappe.db.get_value("User", student.student, "email")
+                    department = frappe.db.get_value("User", student.student, "department")
+                    candidate_name = frappe.db.get_value("User", student.student, "full_name")
+                    
+                    for row in quiz_submissions:
+                        report_data = {
+                            "submission_id": row.name,
+                            "batch_id": batch.name ,
+                            "batch_date": batch.creation,
+                            "quiz": quiz.name,
+                            "date_taken": row.creation,
+                            "candidate_name": candidate_name,
+                            "mail_id": mail_id,
+                            "total_questions": total_questions,
+                            "average_score": average_socre_array.get(quiz.name),
+                            "total_score": row.score,
+                            "percentage": row.percentage,
+                            "no_of_attempt": row.attempt,
+                            "result": "Pass" if row.percentage >= row.passing_percentage else "Fail",
+                            "course": quiz.course,
+                            "department": department,
+                            "submission": "Attempted"
+                        }
+                        if filters.submission_status:
+                            if filters.submission_status == "Not Attempted":
+                                continue
+                        if filters.result:
+                            if filters.result == "Fail" and row.percentage >= row.passing_percentage:
+                                continue
+                            if filters.result == "Pass" and flt(row.percentage) < flt(row.passing_percentage):
+                                continue
+                        data.append(report_data)
+                    if not quiz_submissions:
+                        report_data = {
+                            "submission_id": "",
+                            "batch_id": batch.name ,
+                            "batch_date": batch.creation,
+                            "quiz": quiz.name,
+                            "date_taken": "",
+                            "candidate_name": candidate_name,
+                            "mail_id": mail_id,
+                            "total_questions": total_questions,
+                            "average_score": average_socre_array.get(quiz.name),
+                            "total_score": "",
+                            "percentage": "",
+                            "no_of_attempt": "",
+                            "result": "",
+                            "course": quiz.course,
+                            "department": department,
+                            "submission": "Not Attempted"
+                        }
+                        need_skip_record = False
+                        if filters.submission_status:
+                            if filters.submission_status == "Attempted":
+                                need_skip_record = True
+                        if filters.result:
+                            if filters.result == "Fail" :
+                                pass
+                                # need_skip_record = True
+                            if filters.result == "Pass":
+                                need_skip_record = True
+                        if not need_skip_record:
+                            data.append(report_data)
     return data
 
 def get_average_score():
