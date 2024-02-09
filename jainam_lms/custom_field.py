@@ -17,6 +17,24 @@ def setup_custom_fields():
 				options = 'Department',
                 insert_after='country'
             ),
+			dict(fieldname='division_1',
+                label='Division 1',
+                fieldtype='Link',
+				options = 'LMS Division',
+                insert_after='department'
+            ),
+			dict(fieldname='division_2',
+                label='Division 2',
+                fieldtype='Link',
+				options = 'LMS Division',
+                insert_after='division_1'
+            ),
+			dict(fieldname='division_3',
+                label='Division 3',
+                fieldtype='Link',
+				options = 'LMS Division',
+                insert_after='division_2'
+            ),
 		]
 	}
 	try:

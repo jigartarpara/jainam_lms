@@ -36,6 +36,27 @@ def get_columns():
             'options': 'Department',
             'width': 200
         },
+        {
+            'fieldname': 'division_1',
+            'label': _('Division 1'),
+            'fieldtype': 'Link',
+            'options': 'LMS Division',
+            'width': 200
+        },
+        {
+            'fieldname': 'division_2',
+            'label': _('Division 2'),
+            'fieldtype': 'Link',
+            'options': 'LMS Division',
+            'width': 200
+        },
+        {
+            'fieldname': 'division_3',
+            'label': _('Division 3'),
+            'fieldtype': 'Link',
+            'options': 'LMS Division',
+            'width': 200
+        },
         
         {
             'fieldname': 'mail_id',
@@ -165,6 +186,9 @@ def get_data(filters):
                     mail_id = frappe.db.get_value("User", student.student, "email")
                     department = frappe.db.get_value("User", student.student, "department")
                     candidate_name = frappe.db.get_value("User", student.student, "full_name")
+                    division_1 = frappe.db.get_value("User", student.student, "division_1")
+                    division_2 = frappe.db.get_value("User", student.student, "division_2")
+                    division_3 = frappe.db.get_value("User", student.student, "division_3")
                     
                     for row in quiz_submissions:
                         report_data = {
@@ -183,6 +207,9 @@ def get_data(filters):
                             "result": "Pass" if row.percentage >= row.passing_percentage else "Fail",
                             "course": quiz.course,
                             "department": department,
+                            "division_1": division_1,
+                            "division_2": division_2,
+                            "division_3": division_3,
                             "submission": "Attempted"
                         }
                         if filters.submission_status:
@@ -211,7 +238,10 @@ def get_data(filters):
                             "result": "",
                             "course": quiz.course,
                             "department": department,
-                            "submission": "Not Attempted"
+                            "submission": "Not Attempted",
+                            "division_1": division_1,
+                            "division_2": division_2,
+                            "division_3": division_3
                         }
                         need_skip_record = False
                         if filters.submission_status:
