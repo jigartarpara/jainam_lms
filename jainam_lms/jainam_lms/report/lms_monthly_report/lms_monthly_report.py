@@ -20,9 +20,25 @@ def get_columns():
         },
         {
             'fieldname': 'batch_date',
-            'label': _('Batch Date'),
+            'label': _('Batch Creation Date'),
             'fieldtype': 'Date',
         },
+        {
+            'fieldname': 'batch_start_date',
+            'label': _('Batch Start Date'),
+            'fieldtype': 'Date',
+        },
+        {
+            'fieldname': 'progress',
+            'label': _('Progress'),
+            'fieldtype': 'Data',
+        },
+        {
+            'fieldname': 'confirmation_email_sent',
+            'label': _('Confirmation Email Sent'),
+            'fieldtype': 'Check',
+        },
+        
         {
             'fieldname': 'candidate_name',
             'label': _('Candidate Name'),
@@ -194,7 +210,9 @@ def get_data(filters):
                         report_data = {
                             "submission_id": row.name,
                             "batch_id": batch.name ,
+                            "batch_start_date": batch.start_date ,
                             "batch_date": batch.creation,
+                            "confirmation_email_sent": student.confirmation_email_sent,
                             "quiz": quiz.name,
                             "date_taken": row.creation,
                             "candidate_name": candidate_name,
@@ -225,7 +243,9 @@ def get_data(filters):
                         report_data = {
                             "submission_id": "",
                             "batch_id": batch.name ,
+                            "batch_start_date": batch.start_date ,
                             "batch_date": batch.creation,
+                            "confirmation_email_sent": student.confirmation_email_sent,
                             "quiz": quiz.name,
                             "date_taken": "",
                             "candidate_name": candidate_name,
