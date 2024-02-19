@@ -6,8 +6,9 @@ from frappe import _
 from jainam_lms.jainam_lms.report.report_utils import get_submission_details
 
 def execute(filters=None):
+    filters = frappe._dict(filters or {})
     columns = get_columns()
-    data = get_data()
+    data = get_data(filters)
     return columns, data
 
 def get_columns():
@@ -73,6 +74,11 @@ def get_columns():
             'options': 'LMS Batch'
         },
         {
+            'fieldname': 'batch_medium',
+            'label': _('Medium'),
+            'fieldtype': 'Data',
+        },
+        {
             'fieldname': 'batch_creation',
             'label': _('Batch Creation'),
             'fieldtype': 'Date',
@@ -130,10 +136,16 @@ def get_columns():
         },
     ]
 
-def get_data():
+def get_quiz_submission_conditions(conditions, filters):
+    if filters.quiz_submissions_creation:
+        conditions['creation'] =("between",[filters.quiz_submissions_creation[0], filters.quiz_submissions_creation[1]])
+    return conditions
+
+def get_data(filters):
     data = []
     quiz_submissions = frappe.get_all(
         "LMS Quiz Submission", 
+        get_quiz_submission_conditions({}, filters),
         ["name", "creation", "quiz", "course",  "member", "member_name", "score", "attempt", "percentage", "passing_percentage"]
     )
     average_score = frappe.db.sql("select quiz, avg(score) as score from `tabLMS Quiz Submission` group by quiz", as_dict=True)
@@ -164,6 +176,7 @@ def get_data():
             "enrollment_progress": submission_data.get('enrollment_progress'),
             "batch_start_date": submission_data.get('batch_start_date'),
             "batch_id": submission_data.get('batch_id'),
+            "batch_medium": submission_data.get('batch_medium'),
             "confirmation_email_sent": submission_data.get('confirmation_email_sent'),
             "batch_creation": submission_data.get('batch_creation'),
             "mail_id": frappe.db.get_value("User", row.member, "email"),

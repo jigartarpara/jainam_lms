@@ -25,6 +25,11 @@ def get_columns():
             'fieldtype': 'Date',
         },
         {
+            'fieldname': 'batch_medium',
+            'label': _('Medium'),
+            'fieldtype': 'Data',
+        },
+        {
             'fieldname': 'batch_start_date',
             'label': _('Batch Start Date'),
             'fieldtype': 'Date',
@@ -166,6 +171,10 @@ def get_quiz_conditions(conditions, filters):
     return conditions
 
 def get_lms_batch_conditions(conditions, filters):
+    if filters.batch_start_date:
+        conditions['start_date'] =("between",[filters.batch_start_date[0], filters.batch_start_date[1]])
+    if filters.batch_creation_date:
+        conditions['creation'] =("between",[filters.batch_creation_date[0], filters.batch_creation_date[1]])
     return conditions
 
 def get_quiz_submission_conditions(conditions, filters):
@@ -228,6 +237,7 @@ def get_data(filters):
                             "batch_date": batch.creation,
                             "confirmation_email_sent": student.confirmation_email_sent,
                             "quiz": quiz.name,
+                            "batch_medium": submission_data.get('batch_medium'),
                             "enrollment_id": submission_data.get('enrollment_id'),
                             "enrollment_creation": submission_data.get('enrollment_creation'),
                             "enrollment_progress": submission_data.get('enrollment_progress'),
@@ -264,6 +274,7 @@ def get_data(filters):
                             "batch_date": batch.creation,
                             "confirmation_email_sent": student.confirmation_email_sent,
                             "quiz": quiz.name,
+                            "batch_medium": submission_data.get('batch_medium'),
                             "date_taken": "",
                             "enrollment_id": submission_data.get('enrollment_id'),
                             "enrollment_creation": submission_data.get('enrollment_creation'),

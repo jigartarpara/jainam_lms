@@ -28,5 +28,15 @@ frappe.query_reports["LMS Monthly Report"] = {
 			fieldtype: "Select",
 			options: "\nPass\nFail",
 		},
+		{
+			fieldname: "batch_start_date",
+			label: __("Batch Start Date"),
+			fieldtype: "DateRange",
+		},
+		{
+			fieldname: "batch_creation_date",
+			label: __("Batch Creation Date"),
+			fieldtype: "DateRange",
+		},
 	]
 };

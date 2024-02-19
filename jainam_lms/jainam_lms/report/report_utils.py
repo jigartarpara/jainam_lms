@@ -1,5 +1,20 @@
 import frappe
+import datetime
+from frappe import _
 
+def check_valid_date_for_student(batch):
+    batchdoc = frappe.get_doc("LMS Batch", batch)
+    for student in batchdoc.students:
+        if student.student == frappe.session.user:
+            if batchdoc.start_date  == datetime.datetime.now():
+                if datetime.datetime.now() < batchdoc.start_time or datetime.datetime.now() > batchdoc.end_time : 
+                    raise frappe.PermissionError(_("You don't have permission to access this page."))
+            else:
+                raise frappe.PermissionError(_("You don't have permission to access this page."))
+
+def check_valid_date_for_student_course(course):
+    pass
+    
 def get_submission_details(course, member, quiz):
     
     data = {
@@ -8,6 +23,7 @@ def get_submission_details(course, member, quiz):
         "enrollment_progress": "",
         "batch_start_date": "",
         "batch_id": "",
+        "batch_medium": "",
         "batch_creation":"",
         "confirmation_email_sent": False
     }
@@ -19,7 +35,7 @@ def get_submission_details(course, member, quiz):
             data['enrollment_progress'] = enrollment[2]
     batch_data = frappe.db.sql("""
         select 
-            batch.name, batch.start_date, batch.creation,student_table.confirmation_email_sent 
+            batch.name, batch.start_date, batch.medium, batch.creation,student_table.confirmation_email_sent 
         from 
             `tabLMS Batch` as batch,
             `tabLMS Assessment` as assement_table,
@@ -36,5 +52,6 @@ def get_submission_details(course, member, quiz):
         data['batch_start_date'] = batch_data[0]['start_date']
         data['batch_creation'] = batch_data[0]['creation']
         data['confirmation_email_sent'] = batch_data[0]['confirmation_email_sent']
+        data['batch_medium'] = batch_data[0]['medium']
     
     return data

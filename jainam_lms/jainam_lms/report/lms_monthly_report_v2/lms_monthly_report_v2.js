@@ -4,6 +4,10 @@
 
 frappe.query_reports["LMS Monthly Report V2"] = {
 	"filters": [
-
+		{
+			fieldname: "quiz_submissions_creation",
+			label: __("Quiz Submission Creation"),
+			fieldtype: "DateRange",
+		}
 	]
 };
