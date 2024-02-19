@@ -4,6 +4,7 @@
 import frappe
 from frappe import _
 from frappe.utils import  flt
+from jainam_lms.jainam_lms.report.report_utils import get_submission_details
 def execute(filters=None):
     filters = frappe._dict(filters or {})
     columns = get_columns()
@@ -27,11 +28,6 @@ def get_columns():
             'fieldname': 'batch_start_date',
             'label': _('Batch Start Date'),
             'fieldtype': 'Date',
-        },
-        {
-            'fieldname': 'progress',
-            'label': _('Progress'),
-            'fieldtype': 'Data',
         },
         {
             'fieldname': 'confirmation_email_sent',
@@ -92,6 +88,22 @@ def get_columns():
             'label': _('Instructor'),
             'fieldtype': 'Data',
             'width': 200
+        },
+        {
+            'fieldname': 'enrollment_id',
+            'label': _('LMS Enrollment'),
+            'fieldtype': 'Link',
+            'options': 'LMS Enrollment'
+        },
+        {
+            'fieldname': 'enrollment_creation',
+            'label': _('Enrollment Creation'),
+            'fieldtype': 'Date',
+        },
+        {
+            'fieldname': 'enrollment_progress',
+            'label': _('Enrollment Progress'),
+            'fieldtype': 'Data',
         },
         {
             'fieldname': 'submission',
@@ -205,8 +217,10 @@ def get_data(filters):
                     division_1 = frappe.db.get_value("User", student.student, "division_1")
                     division_2 = frappe.db.get_value("User", student.student, "division_2")
                     division_3 = frappe.db.get_value("User", student.student, "division_3")
+                    submission_data = get_submission_details(quiz.course, student.student, quiz.name)
                     
                     for row in quiz_submissions:
+                        
                         report_data = {
                             "submission_id": row.name,
                             "batch_id": batch.name ,
@@ -214,6 +228,9 @@ def get_data(filters):
                             "batch_date": batch.creation,
                             "confirmation_email_sent": student.confirmation_email_sent,
                             "quiz": quiz.name,
+                            "enrollment_id": submission_data.get('enrollment_id'),
+                            "enrollment_creation": submission_data.get('enrollment_creation'),
+                            "enrollment_progress": submission_data.get('enrollment_progress'),
                             "date_taken": row.creation,
                             "candidate_name": candidate_name,
                             "mail_id": mail_id,
@@ -248,6 +265,9 @@ def get_data(filters):
                             "confirmation_email_sent": student.confirmation_email_sent,
                             "quiz": quiz.name,
                             "date_taken": "",
+                            "enrollment_id": submission_data.get('enrollment_id'),
+                            "enrollment_creation": submission_data.get('enrollment_creation'),
+                            "enrollment_progress": submission_data.get('enrollment_progress'),
                             "candidate_name": candidate_name,
                             "mail_id": mail_id,
                             "total_questions": total_questions,
