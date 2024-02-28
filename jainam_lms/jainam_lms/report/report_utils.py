@@ -1,19 +1,38 @@
 import frappe
 import datetime
 from frappe import _
+from frappe.utils import today, get_timedelta, nowtime
 
 def check_valid_date_for_student(batch):
     batchdoc = frappe.get_doc("LMS Batch", batch)
     for student in batchdoc.students:
         if student.student == frappe.session.user:
-            if batchdoc.start_date  == datetime.datetime.now():
-                if datetime.datetime.now() < batchdoc.start_time or datetime.datetime.now() > batchdoc.end_time : 
-                    raise frappe.PermissionError(_("You don't have permission to access this page."))
+            if str(batchdoc.start_date)  == str(today()):
+                currenttimedelta = get_timedelta(nowtime())
+                if  currenttimedelta < batchdoc.start_time or currenttimedelta > batchdoc.end_time : 
+                    raise frappe.PermissionError(_("Please Access this page beetween "+ str(batchdoc.start_time) + " to " + str(batchdoc.end_time)))
             else:
-                raise frappe.PermissionError(_("You don't have permission to access this page."))
+                raise frappe.PermissionError(_("Please Access this page beetween "+ str(batchdoc.start_date) + " to " +str(batchdoc.start_time) + " " + str(batchdoc.end_time)))
 
 def check_valid_date_for_student_course(course):
-    pass
+    user = frappe.session.user
+    batch_data = frappe.db.sql("""
+        select 
+            batch.name 
+        from 
+            `tabLMS Batch` as batch,
+            `tabBatch Course` as batch_course,
+            `tabBatch Student` as student_table
+        where
+            batch.name = batch_course.parent
+            and batch.name = student_table.parent
+            and student_table.student = %s
+            and batch_course.course = %s
+    """,(user,course), as_dict=True)
+    if batch_data:
+        batch_name = batch_data[0]['name']
+        check_valid_date_for_student(batch_name)
+
     
 def get_submission_details(course, member, quiz):
     
